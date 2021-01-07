@@ -100,7 +100,7 @@ void setup() {
   byte hardwareConfig = COMMON_CATHODE; // se seteaza pe catod comun
   sevseg.begin(hardwareConfig, numDigits, digitPins, segmentPins, resistorsOnSegments); // initializarea afisorului
   sevseg.setBrightness(90); // setarea luminozitatii afisorului
-
+ 
   // se seteaza pinii pentru senzorul de culoare
   pinMode(s0, OUTPUT);
   pinMode(s1, OUTPUT);
@@ -117,7 +117,6 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-
   // daca switch-ul are valoarea 1 (adica daca s-a pornit jocul) se executa:
   if (digitalRead(switch_pin)) {
     if (!sing_start_buzzer) // daca buzzerul nu a mai fost activat de la ultima pornire
@@ -125,7 +124,6 @@ void loop() {
       singGameStart(); // sunetul de start
       sing_start_buzzer = 1;
     }
-
     if (!SWState) { // daca se apasa butonul joystick-ului
       for (int i = 0; i < 200; i++) {
         sevseg.setChars(nr); // se seteaza numarul pe afisor
@@ -157,22 +155,22 @@ void loop() {
       Serial.println(frequencyG);
 
       // daca se detecteaza culoarea albastra
-      if (frequencyG <= 78) ////// trebuie modificata valoarea in functie de noi masuratori
+      if (frequencyR > 150) ////// trebuie modificata valoarea in functie de noi masuratori
       {
-        if (nr[1] == 9) // daca scorul a ajuns la 9 se reseteaza tabelul
+        if (nr[1] == '5') // daca scorul a ajuns la 9 se reseteaza tabelul
         {
-          nr[1] = 0;
-          nr[3] = 0;
+          nr[1] = '0';
+          nr[3] = '0';
         }
         else // altfel se incrementeaza punctajul pentru albastru
           nr[1]++;
         singGameWon(); // se activeaza melodia care indica castigarea jocului
       } // altfel daca se detecteaza culoarea rosie
       else {
-        if (nr[3] == 9) // daca scorul a ajuns la 9 se reseteaza tabelul
+        if (nr[3] == '5') // daca scorul a ajuns la 9 se reseteaza tabelul
         {
-          nr[3] = 0;
-          nr[1] = 0;
+          nr[3] = '0';
+          nr[1] = '0';
         }
         else
           nr[3]++; // altfel se incrementeaza punctajul pentru rosu
@@ -190,9 +188,9 @@ void loop() {
     mapY = map(yPos, 0, 1023, -5, 5);
 
     // se afiseaza in monitorul serial valorile venite de la joystick
-    //    Serial.print(mapX);
-    //    Serial.print(" ");
-    //    Serial.println(mapY);
+        Serial.print(mapX);
+        Serial.print(" ");
+        Serial.println(mapY);
 
     // se compara valorile mapate cu o referinta
     // -1 deoarece aceasta valoare este returnata in pozitia de repaus
@@ -204,7 +202,7 @@ void loop() {
       servoX.write(servoPosX);
       // in loc de delay, se foloseste peste tot o bucla in care tot ce se intampla este reimprospatarea afisorului
       // din cauza ca aceasta biblioteca nu functioneaza corespunzator cu intarzierile clasice
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 500; i++) {
         sevseg.setChars(nr);
         sevseg.refreshDisplay();
       }
@@ -212,7 +210,7 @@ void loop() {
     else if (mapX < -1) { // in cazul in care valorile sunt mai mici decat referinta, se decrementeaza pozitia servomotorului corespunzator
       servoPosX--;
       servoX.write(servoPosX);
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 500; i++) {
         sevseg.setChars(nr);
         sevseg.refreshDisplay();
       }
@@ -220,7 +218,7 @@ void loop() {
     if (mapY > -1) {
       servoPosY++;
       servoY.write(servoPosY);
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 500; i++) {
         sevseg.setChars(nr);
         sevseg.refreshDisplay();
       }
@@ -228,25 +226,26 @@ void loop() {
     else if (mapY < -1) {
       servoPosY--;
       servoY.write(servoPosY);
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 500; i++) {
         sevseg.setChars(nr);
         sevseg.refreshDisplay();
       }
     }
 
     // din nou, in loc de un delay se foloseste un for
-    for (int i = 0; i < 300; i++) {
+    for (int i = 0; i < 500; i++) {
       sevseg.setChars(nr);
       sevseg.refreshDisplay();
     }
   }
   else // in caz contrar, se transmite serial un mesaj
   {
-    Serial.println("Jocul este oprit");
+    //Serial.println("Jocul este oprit");
     sing_start_buzzer = 0; // se marcheaza pe 0 sunetul buzzerului ca la urmatoarea pornire sa cante dinnou
     sevseg.blank(); // nu se mai afiseaza nimic pe afisor
-    nr[3] = 0; // se reseteaza scorul pentru ambele bile
-    nr[1] = 0;
+    sevseg.refreshDisplay();
+    nr[3] = '0'; // se reseteaza scorul pentru ambele bile
+    nr[1] = '0';
   }
 }
 
